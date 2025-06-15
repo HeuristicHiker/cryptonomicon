@@ -9,16 +9,16 @@ type Node interface {
 }
 
 type Leaf struct {
-	Digest [32]byte // Exported field
+	Digest [32]byte
 }
 
 type Internal struct {
-	Digest      [32]byte // Exported field
-	Left, Right Node     // Already exported
+	Digest      [32]byte
+	Left, Right Node
 }
 
 type Tree struct {
-	Root Node // Already exported
+	Root Node
 }
 
 func (l *Leaf) Hash() [32]byte {
@@ -70,9 +70,3 @@ func BuildTree(data [][]byte) *Tree {
 
 	return &Tree{Root: nodes[0]}
 }
-
-/*
-Okay, I have the goal of getting to where I fully understand merkle trees but let's work backwards on concepts to establish the first principles I can work with.
-
-Ask me a short question on merkle trees then I'll respond with my best guess. Based on that establish the underlying principle I'm missing then we'll iterate with another short question until we get to a place where I understand the concept we end on and we can work our way back
-*/
