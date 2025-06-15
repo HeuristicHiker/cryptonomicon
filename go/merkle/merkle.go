@@ -29,7 +29,7 @@ func (n *Internal) Hash() [32]byte {
 	return n.Digest
 }
 
-// NewLeaf creates a Leaf node from raw data by hashing with SHA-256.
+// Assume we're hashing transactions using sha256
 func NewLeaf(data []byte) *Leaf {
 	digest := sha256.Sum256(data)
 	return &Leaf{Digest: digest}

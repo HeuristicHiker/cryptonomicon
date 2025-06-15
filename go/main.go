@@ -22,7 +22,7 @@ func main() {
 	printer.PrintTree(tree)
 
 	// Optionally print with full hash details
-	fmt.Println("\n")
+	// fmt.Println("\n")
 	printer.PrintTreeDetailed(tree)
 
 	fmt.Printf("\nRoot Hash: %x\n", tree.Root.Hash())
