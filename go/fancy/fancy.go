@@ -100,8 +100,19 @@ func PrintGreenGiant() {
 	fmt.Println("🌿🌱🌱🌿🌱🌱🌿🌱🌿")
 	fmt.Println("🌿🌱🌱👁️🌱🌱👁️🌱🌿")
 	fmt.Println("🌿🌱🌱🌱👃🌱🌱🌱🌿")
-	fmt.Println("🌿🌱🌱🌱👄🌱🌱🌱🌿	That's a leaf alright")
+	fmt.Println("🌿🌱🌱🌱🫦🌱🌱🌱🌿	That's a leaf alright")
 	fmt.Println(" 🌿🌱🌱🌱🌱🌱🌱🌿")
 	fmt.Println("   🌿🌿🌿🌿🌿🌿")
-	fmt.Println("")
+}
+
+func PrintFireGiant() {
+	fmt.Println("Leaf is inavlid ya goof")
+
+	fmt.Println("  🔥🔥🔥🔥🔥🔥🔥 ")
+	fmt.Println("🔥🌱🌱🔥🌱🌱🔥🌱🔥")
+	fmt.Println("🔥🌱🌱👁\ufe0f\u200d🗨\ufe0f🌱🌱👁\ufe0f\u200d🗨\ufe0f🌱🔥")
+	fmt.Println("🔥🌱🌱🌱👃🌱🌱🌱🔥")
+	fmt.Println("🔥🌱🌱🌱🫦🌱🌱🌱🔥	That's not a leaf that's a sneaki skunk!")
+	fmt.Println(" 🔥🌱🌱🌱🌱🌱🌱🔥")
+	fmt.Println("   🔥🔥🔥🔥🔥🔥")
 }

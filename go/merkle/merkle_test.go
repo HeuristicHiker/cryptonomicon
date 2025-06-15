@@ -3,7 +3,6 @@ package merkle
 import (
 	"crypto/sha256"
 	"cryptonomicon/fancy"
-	"fmt"
 	"testing"
 )
 
@@ -68,27 +67,60 @@ func TestNewLeaf(t *testing.T) {
 
 	fancy.PrintGreenGiant()
 
+	fancy.PrintHeader("This leaf should be invalid")
+
+	t.Run("hash matches expected SHA256", func(t *testing.T) {
+		data := []byte("test")
+		data2 := []byte("test2")
+		leaf := NewLeaf(data)
+		expected := sha256.Sum256(data2)
+		if leaf.Hash() == expected {
+			t.Error("You failed at failing to create a differnet SHA256. The proability of that means you need to buy a lotery ticket... RIGHT NOW")
+			fancy.PrintError("Hash should match SHA256 of input data")
+		}
+		fancy.PrintSuccess("Invalid SHA256 hash shows as invalid")
+		fancy.PrintFireGiant()
+	})
+
 }
 
 func TestBuildTree(t *testing.T) {
-	var sampleLedger = []string{
-		"Transaction 1",
-		"Transaction 2",
-		"Transaction 3",
-		"Transaction 4",
-		"Transaction 5",
-		"Transaction 6",
-		"Transaction 7",
-		"Transaction 8",
-		"Transaction 9",
-		"Transaction 10",
+	var firstLedger = []string{
+		"T1",
+		"T2",
+		"T3",
+		"T4",
+		"T5",
+		"T6",
+		"T7",
+		"T8",
+		"T9",
+		"T10",
 	}
 
-	fancy.PrintHeader("Building merkle tree based on ledger")
-	fmt.Println(sampleLedger)
+	// fancy.PrintHeader("Building merkle tree based on ledger")
+	// fmt.Println(sampleLedger)
 
 	// Build merkle tree
-	tree := BuildTree(ConvertToBytes(sampleLedger))
+	// BuildTree(sampleLedger)
+	var secondLedger = []string{
+		"T1",
+		"T2",
+		"T3",
+		"T4",
+		"T5",
+		"T6",
+		"T7",
+		"T10",
+		"T9",
+		"T10",
+	}
+	fancy.PrintHeader("Expect the following to be \033[32mValid\033 ledger:")
+	CompareTree(firstLedger, firstLedger)
+	fancy.PrintHeader("Expect the following to be \033[31mInvalid\033 ledger:")
+	CompareTree(firstLedger, secondLedger)
+	fancy.PrintSuccess("You FOOL obviously that the transactions are fraudulent do you even SHA my guy???")
 
-	PrintTree(tree)
+	// PrintMerkleCompute(sampleLedger, tree)
+
 }
