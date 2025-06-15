@@ -3,6 +3,7 @@ package merkle
 import (
 	"crypto/sha256"
 	"cryptonomicon/fancy"
+	"fmt"
 	"testing"
 )
 
@@ -65,7 +66,7 @@ func TestNewLeaf(t *testing.T) {
 		fancy.PrintSuccess("SHA256 hash verified")
 	})
 
-	fancy.PrintSuccess("Leafs are leafy")
+	fancy.PrintGreenGiant()
 
 }
 
@@ -82,6 +83,12 @@ func TestBuildTree(t *testing.T) {
 		"Transaction 9",
 		"Transaction 10",
 	}
-	fancy.PrintHeader("Verifying a ledger")
 
+	fancy.PrintHeader("Building merkle tree based on ledger")
+	fmt.Println(sampleLedger)
+
+	// Build merkle tree
+	tree := BuildTree(ConvertToBytes(sampleLedger))
+
+	PrintTree(tree)
 }

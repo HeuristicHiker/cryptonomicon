@@ -70,3 +70,12 @@ func BuildTree(data [][]byte) *Tree {
 
 	return &Tree{Root: nodes[0]}
 }
+
+// Utils
+func ConvertToBytes(data []string) [][]byte {
+	result := make([][]byte, len(data))
+	for i, s := range data {
+		result[i] = []byte(s)
+	}
+	return result
+}

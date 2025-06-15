@@ -1,14 +1,12 @@
-package printer
+package merkle
 
 import (
 	"fmt"
 	"strings"
-
-	"cryptonomicon/merkle"
 )
 
 // PrintTree prints the merkle tree in a visual format to the terminal
-func PrintTree(t *merkle.Tree) {
+func PrintTree(t *Tree) {
 	if t.Root == nil {
 		fmt.Println("Empty tree")
 		return
@@ -21,7 +19,7 @@ func PrintTree(t *merkle.Tree) {
 }
 
 // printNode recursively prints nodes with tree-like formatting
-func printNode(node merkle.Node, prefix string, isLast bool, level int) {
+func printNode(node Node, prefix string, isLast bool, level int) {
 	if node == nil {
 		return
 	}
@@ -35,7 +33,7 @@ func printNode(node merkle.Node, prefix string, isLast bool, level int) {
 	// Print current node
 	hash := node.Hash()
 	nodeType := "LEAF"
-	if internal, ok := node.(*merkle.Internal); ok {
+	if internal, ok := node.(*Internal); ok {
 		nodeType = "INTERNAL"
 		fmt.Printf("%s%s%s [Level %d]: %x\n", prefix, connector, nodeType, level, hash[:4])
 
@@ -58,7 +56,7 @@ func printNode(node merkle.Node, prefix string, isLast bool, level int) {
 }
 
 // PrintTreeDetailed prints the tree with full hash values
-func PrintTreeDetailed(t *merkle.Tree) {
+func PrintTreeDetailed(t *Tree) {
 	if t.Root == nil {
 		fmt.Println("Empty tree")
 		return
@@ -71,7 +69,7 @@ func PrintTreeDetailed(t *merkle.Tree) {
 }
 
 // printNodeDetailed prints nodes with full hash values
-func printNodeDetailed(node merkle.Node, prefix string, isLast bool, level int) {
+func printNodeDetailed(node Node, prefix string, isLast bool, level int) {
 	if node == nil {
 		return
 	}
@@ -83,7 +81,7 @@ func printNodeDetailed(node merkle.Node, prefix string, isLast bool, level int) 
 
 	hash := node.Hash()
 	nodeType := "LEAF"
-	if internal, ok := node.(*merkle.Internal); ok {
+	if internal, ok := node.(*Internal); ok {
 		nodeType = "INTERNAL"
 		fmt.Printf("%s%s%s [L%d]: %x\n", prefix, connector, nodeType, level, hash)
 

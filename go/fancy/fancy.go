@@ -93,3 +93,15 @@ func PrintProbabilityResult(probability float64) {
 	fmt.Printf("\n%s%s🌟 BIRTHDAY PARADOX TEST COMPLETE - MATHEMATICS ROCKS! 🌟%s\n", bold, magenta, reset)
 	fmt.Printf("%s%s═══════════════════════════════════════════════════════════%s\n\n", bold, magenta, reset)
 }
+
+func PrintGreenGiant() {
+	fmt.Println("Oh yeah")
+	fmt.Println("  🌿🌿🌿🌿🌿🌿🌿 ")
+	fmt.Println("🌿🌱🌱🌿🌱🌱🌿🌱🌿")
+	fmt.Println("🌿🌱🌱👁️🌱🌱👁️🌱🌿")
+	fmt.Println("🌿🌱🌱🌱👃🌱🌱🌱🌿")
+	fmt.Println("🌿🌱🌱🌱👄🌱🌱🌱🌿	That's a leaf alright")
+	fmt.Println(" 🌿🌱🌱🌱🌱🌱🌱🌿")
+	fmt.Println("   🌿🌿🌿🌿🌿🌿")
+	fmt.Println("")
+}
