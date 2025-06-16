@@ -8,7 +8,6 @@ import (
 
 func TestNewLeaf(t *testing.T) {
 	fancy.PrintHeader("Checking if leaves are set all good n stuff")
-
 	t.Run("basic leaf creation", func(t *testing.T) {
 		rawData := "Transaction 1"
 		data := []byte(rawData)
@@ -66,7 +65,6 @@ func TestNewLeaf(t *testing.T) {
 	})
 
 	fancy.PrintGreenGiant()
-
 	fancy.PrintHeader("This leaf should be invalid")
 
 	t.Run("hash matches expected SHA256", func(t *testing.T) {
@@ -81,7 +79,6 @@ func TestNewLeaf(t *testing.T) {
 		fancy.PrintSuccess("Invalid SHA256 hash shows as invalid")
 		fancy.PrintFireGiant()
 	})
-
 }
 
 func TestBuildTree(t *testing.T) {
@@ -122,5 +119,36 @@ func TestBuildTree(t *testing.T) {
 	fancy.PrintSuccess("You FOOL obviously that the transactions are fraudulent do you even SHA my guy???")
 
 	// PrintMerkleCompute(sampleLedger, tree)
+}
+
+func TestNewTransaction(t *testing.T) {
+	fancy.PrintHeader("Add a new transaction")
+	firstLedger := []string{
+		"T1",
+		"T2",
+		"T3",
+		"T4",
+		"T5",
+		"T6",
+		"T7",
+		"T8",
+		"T9",
+	}
+	newTransaction := "T12"
+	// secondLedger := []string{
+	// 	"T1",
+	// 	"T2",
+	// 	"T3",
+	// 	"T4",
+	// 	"T5",
+	// 	"T6",
+	// 	"T7",
+	// 	"T8",
+	// 	"T9",
+	// 	"T10",
+	// }
+	firstLedger = append(firstLedger, newTransaction)
+	// tree := BuildTree(firstLedger)
+	NewTreeBuild(firstLedger)
 
 }

@@ -10,7 +10,9 @@ type Node interface {
 }
 
 type Leaf struct {
-	Digest [32]byte
+	Digest       [32]byte
+	asByteStream []byte
+	plainText    string
 }
 
 type Internal struct {
@@ -30,10 +32,25 @@ func (n *Internal) Hash() [32]byte {
 	return n.Digest
 }
 
+func newInternal(left, right Node) *Internal {
+	digest := hashNode(left.Hash(), right.Hash())
+
+	return &Internal{
+		Digest: digest,
+		Left:   left,
+		Right:  right,
+	}
+
+}
+
 // Assume we're hashing transactions using sha256
 func NewLeaf(data []byte) *Leaf {
 	digest := sha256.Sum256(data)
-	return &Leaf{Digest: digest}
+	return &Leaf{
+		Digest:       digest,
+		asByteStream: data,
+		plainText:    string(data),
+	}
 }
 
 // hashNode computes the SHA-256 hash of two child node hashes.
@@ -55,9 +72,6 @@ func BuildTree(ledger []string) *Tree {
 		nodes = append(nodes, NewLeaf(d))
 	}
 
-	// fmt.Println(nodes, " | ", len(nodes))
-	PrintLineOfNodes(nodes)
-
 	// build upper levels until root
 	for len(nodes) > 1 {
 		// if odd number of nodes, duplicate last
@@ -75,9 +89,7 @@ func BuildTree(ledger []string) *Tree {
 			})
 		}
 		nodes = nextLevel
-		PrintLineOfNodes(nodes)
 	}
-	fmt.Println("\nDone")
 
 	// fmt.Println("Root: ", nodes[0])
 
@@ -227,4 +239,83 @@ func PrintMerkleCompute(ledger []string, t *Tree) {
 		}
 		fmt.Printf("\n")
 	}
+}
+
+func NewTreeBuild(ledger []string) {
+	// hash all transactions
+	data := ConvertToBytes(ledger)
+
+	// set the nodes
+	var nodes []Node
+	for _, d := range data {
+		newLeaf := NewLeaf(d)
+		// fmt.Printf("Transaction %s -> Hash: %x\n", newLeaf.plainText, newLeaf.Digest)
+		nodes = append(nodes, newLeaf)
+	}
+
+	printableNodes := make(map[int][]Node)
+	iterations := 0
+
+	printNodeLine(nodes, 10)
+	for len(nodes) > 1 {
+		// TODO - balance the binary tree - feels meh
+		if len(nodes)%2 == 1 {
+			nodes = append(nodes, nodes[len(nodes)-1])
+		}
+		var nextLevel []Node
+		iterations++
+
+		for i := 0; i < len(nodes); i += 2 {
+			left, right := nodes[i], nodes[i+1]
+			digest := hashNode(left.Hash(), right.Hash())
+			fmt.Printf("%x", digest)
+			newInternal := &Internal{
+				Digest: digest,
+				Left:   left,
+				Right:  right,
+			}
+			nextLevel = append(nextLevel, newInternal)
+			printableNodes[iterations] = append(printableNodes[i], newInternal)
+			printNodeLine(nextLevel, 10)
+			// shortenedHash := nextLevel[0].Hash()
+			// fmt.Printf("\033[31m[%x]\033[0m", shortenedHash[28:])
+			// fmt.Printf("\033[32m[%x]\033[0m", shortenedHash[28:])
+		}
+		nodes = nextLevel
+		fmt.Println("asdjkfnasklfdm ", iterations)
+		for _, j := range printableNodes {
+			printNodeLine(j, 10)
+		}
+		fmt.Println("------")
+	}
+
+	// printNodeLine(nodes, 10)
+
+	// pair off transactions
+}
+
+func printNodeLine(nodes []Node, maxLen int) {
+	lenToPad := len(nodes)
+	padLeft := (maxLen - lenToPad) / 2
+	padRight := maxLen - lenToPad - padLeft
+
+	for idx := range padLeft {
+		if idx == 0 {
+			fmt.Printf("[-x------]")
+		} else {
+			fmt.Printf("[--------]")
+		}
+	}
+	for _, n := range nodes {
+		shortenedHash := n.Hash()
+		fmt.Printf("[%x]", shortenedHash[28:])
+	}
+	for idx := range padRight {
+		if idx == padRight-1 {
+			fmt.Printf("[------x-]")
+		} else {
+			fmt.Printf("[--------]")
+		}
+	}
+	fmt.Printf("\n")
 }
