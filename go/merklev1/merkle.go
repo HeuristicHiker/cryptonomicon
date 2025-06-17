@@ -32,17 +32,6 @@ func (n *Internal) Hash() [32]byte {
 	return n.Digest
 }
 
-func newInternal(left, right Node) *Internal {
-	digest := hashNode(left.Hash(), right.Hash())
-
-	return &Internal{
-		Digest: digest,
-		Left:   left,
-		Right:  right,
-	}
-
-}
-
 // Assume we're hashing transactions using sha256
 func NewLeaf(data []byte) *Leaf {
 	digest := sha256.Sum256(data)
