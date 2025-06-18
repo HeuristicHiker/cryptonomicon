@@ -51,11 +51,8 @@ func hashNode(left, right [32]byte) [32]byte {
 }
 
 func BuildTree(ledger []string) *Tree {
-	// I want to just pass in a ledger homie
-
 	data := ConvertToBytes(ledger)
 
-	fmt.Printf("Wow my guy looks like you have %d transactions. Better verify them bois\n", len(ledger))
 	var nodes []Node
 	for _, d := range data {
 		nodes = append(nodes, NewLeaf(d))
@@ -79,8 +76,6 @@ func BuildTree(ledger []string) *Tree {
 		}
 		nodes = nextLevel
 	}
-
-	// fmt.Println("Root: ", nodes[0])
 
 	return &Tree{Root: nodes[0]}
 }

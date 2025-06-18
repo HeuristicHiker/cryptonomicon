@@ -237,46 +237,9 @@ func buildInternals(tree *MerkleTree) *MerkleTree {
 }
 
 func NewMerkleTree(transactions []Transaction) *MerkleTree {
-	// First, we want to setup the leaves
-
-	// Track level
-	//	// Number of nodes
-	// Track relationships
-	//	// Which are parent/sib/children
-	//	// Slice of nodes
-	//
-
-	// init leaf nodes
-	//	// stores hash of data
-	//	// hash datablocks
-	// more than 1 node?
-	//	// pair nodes
-	//	// track relationsh
-	//	// create level
-	//	// Duplicate if odd number
-	//		// l node + r node
-	// final
-	//	// node is merkle root
-	//		// is tree
-	//		// has
-	//			// root hash - has value
-	//			// merkle proofs (inclusion proofs)
-	//				// verify data
-	//				// path of hashes from leaf to root
-	//					// only uses subset
-	//			// hash function used
-	//			//
 
 	estimatedNumberOfLevels := math.Log2(float64(len(transactions)))
 	intEstimate := int(estimatedNumberOfLevels)
-	// Basically, I want to round this up
-	// Yes, I do realize creating a var from converting a float into an int
-	// And then literally typing into float64 on the next line and comparins
-	// SEEMS stupid
-	// BUT if you compare as ints then it rounds and loses the point
-	// BUT BUT you still want an int since you won't have x.5 levels you'll only have x levels
-	// I'm mainly writing this for future Connor who may still think it's dumb after reading this
-	// Je me mets au défi 🤺
 	if float64(intEstimate) < estimatedNumberOfLevels {
 		intEstimate++
 	}
@@ -309,7 +272,7 @@ func NewMerkleTree(transactions []Transaction) *MerkleTree {
 	buildInternals(&tree)
 
 	if len(tree.HashSet) == intEstimate {
-		fmt.Println("Expected levels, wow, you must have mathed")
+		fmt.Println("Expected levels, wow, you must have mathedor ")
 	}
 	return &tree
 }
@@ -381,20 +344,6 @@ func BuildMerkleRoot(ledger Ledger) (*Node, []*Node) {
 
 	return buildMerkleTree(leaves, totalLeaves, internals)
 }
-
-//		Adding to merkle tree	//
-
-// func CalculateWhatWouldChange(tree []*Node, history []*Node) {
-// 	proposedTransaction := Transaction{
-// 		id:        "11",
-// 		payer:     "Bob",
-// 		recipient: "Sally",
-// 		amount:    5,
-// 	}
-
-// 	buildMerkleTree(tree, len(tree), history)
-
-// }
 
 //			Print stuff			//
 

@@ -1,12 +1,18 @@
 package main
 
-import (
-	merklev2 "cryptonomicon/merklev2"
-)
+import "cryptonomicon/tree"
 
 func main() {
-	ledger := merklev2.CreateSampleLedger()
+	// ledger := merklev2.CreateSampleLedger()
 	// ledgerByteSlice := merklev2.LedgerToByteSlices(ledger)
-	merklev2.NewMerkleTree(ledger.Transactions)
+	// merklev2.NewMerkleTree(ledger.Transactions)
+
+	ledger := tree.CreateSampleLedger()
+	head := tree.Node{}
+
+	tree.CreateSimpleBinaryTree(ledger, &head)
 
 }
+
+// return head
+// head.left and head.right = last 2 hashes

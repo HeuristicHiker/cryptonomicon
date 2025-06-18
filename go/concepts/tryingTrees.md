@@ -1,0 +1,238 @@
+
+
+
+# Trees
+## TLDR
+- Radix/ Patricia tree
+	- Combine orphaned nodes
+	- Radix - math and number systems
+		- "Radix of decimal system is 10"
+		- "Radix of binary is 2"
+		- Radix of keys for branching factor
+			- Steps down the tree based on base
+- Merkle tree
+	- Compress to single root node for comparison
+- Bloom filter
+	- Probabilistic system
+
+## Rollups
+- ZK rollup
+	- Verification
+		- Zero knowledge rollup
+		- Layer 2 verification
+		- Bundle/ rollup transactions to batch
+			- Submit to chain
+		- Verify 0 knowledge proofs
+			- 1 party proves statment is true without details of statement
+	- Merkle trees summarize large data sets
+	- Zk rollups summarize transactions
+	- Batches transactions
+	- Functions
+		- batchTransactions(transactions) batch
+			- collectTransactions(transactionsHole)
+				- Which are ready for batch
+			- validateTransactions(transactions) isValid
+				- account balances
+				- sigantures
+			- groupTransactions(transactions) [size]batch
+			- createBatchRoot(batch) rootHash
+				- used later
+			- prepareBatchData(rootHash) commitments for prooving
+		- Batch data structure
+			- collection of transactions + meta data
+				- []Transaction
+					- sender
+					- recep
+					- amount
+				- Hash
+					- merkle tree root of transactions
+				- Batch id
+				- Timestamp
+		- generateZkProof(batch) proof
+			- zk snark/ zk start
+			- data structures
+				- transaction[] or batch
+				- proof
+					- compact cryptographic object
+					- Often crypto commitments
+						- Compact structured objects that are needed
+						- Common
+							- Arrays of field elements (finite field)
+								- zk snark = array of elements of proof
+							- commitments to inputs
+								- public params
+							- serialized into json or binary
+			- functions
+				- prepareInputs(batch) formatOfZkPRoof
+					- crypto commits
+					- Organize data for proof
+				- computeWitness(data, ) isCorrect, signature
+					- Computes evidence
+				- generateProof(preparedInfo, witnessData) isValidPRoofs[]
+				- verifyProof(proof) isCorrect
+					- Happens on blockchain
+					- No transaction data
+		- verifyProof(proof) isCorrect
+			- datastructures
+				- 
+			- functions
+				- 
+		- submitBatch(batch, proof) -> send
+			- send to blockchain
+			- Does so efficiently
+		- updateState(prevState, verifiedTransactions) -> update
+
+
+## Bloom filter
+- Related
+	- LSM trees
+- Use case
+	- Check if might be in set without explicit storage
+	- Definitely not in set - 100% accurate
+	- Could be in set
+	- Good for large data sets
+		- Want to filter
+		- Web caching - slower db
+		- Network security
+			- Known malicious IP address
+- Crypto use cases
+	- SPV payment wallets
+		- Bloom filters for relevant transactions without entire blockchain
+		- Addresses and transactions it's interested in
+			- Sends to full node
+			- Receieve relevant transactions
+	- Peer-to-peer
+		- Less data exchange
+- Crypto Bad use cases 
+	- When need exact data - don't use
+- Alternatives
+	- Counting bloom filters (faster but can delete)
+		- Variation with deletion
+			- Counters over simple bits
+			- Add - increment delete - decrement
+			- Frequent
+	- Coo coo filters (middle ground)
+		- Advantage - can delete elements
+		- More space efficient sometimes
+		- Lower false positive
+	- Hash tables/ sets (cold option)
+		- Perfect accuracy but more memory
+- Pros/ cons
+	- Fast/ space efficient
+	- Quick membership tests
+	- False positives
+	- No deletions without alternatives
+
+## Radix/ Patricia Details
+- Graphs
+	- Cryptography
+	- Network security
+	- Blockchain analysis
+	- Encryption
+	- Relationships between entities
+		- Nodes
+		- Edges
+		- Dependencies
+- Hashes/ hash tables
+	- Fast lookup
+	- Data integrity/ authenticity
+	- Less hierarchy
+	- More mapping
+- Arrays/ lists
+	- Order is important
+	- Sequential access
+	- Block cyphers
+- Matrixes
+	- Crypt analysis
+	- Crypt algorithms
+	- Latice based cryptography
+- State machines
+	- State and transitions of systems
+	- Secure communications
+- Trees
+
+
+# Trees
+- Tries
+	- Improvement
+		- Preface based lookups
+		- Better than hash tables
+			- Hash good for fast lookup O(1)
+			- No ordering for traversal
+			- Hash function collisions
+	- Tries have keys for pre-fixes
+		- Good for auto complete
+		- Lexigraphical traversal
+- Concepts
+	- Tree traversal
+		- (AKA) Pre-fix trees
+			- Pre-fix of stored trees
+	- Lexicagraphical traversal
+		- Lexicagraphical order
+			- Order appear in dictionary
+			- Reflects dictionary order
+			- Visit nodes based on alphabetical order
+		- In a try
+			- Depth first a->z
+			- Keys sorted like in dictionary
+		- Concepts
+			- Character ordering a->z
+		- String comparison
+			- Character by character
+			- Compare/ sort optimization
+		- Pre-fix trees
+		- Sorting algorithms
+	- Pre-fix matching
+		- Math equation
+		- Datastructure optimization
+			- Balancing pre-fixs
+				- Size of element
+					- sha256 = 256 bits
+				- num possible values
+				- num elements storing
+			- Tries / radix
+				- "Branching factor"
+				- Size of alphabet
+				- Distribution of keys
+			- Patricia tree
+	- Memory efficiency and space efficiency
+		- Mem efficient when lots of common pre-fixes
+	- Efficiency based on size of alphabet vs binary
+	- Radix trees/ patricia tries/ compressed tries (Same as Patricia tree)
+		- "Practical Algorithm To Retrieve Information Coded in Alphanumeric"
+		- On the fly compression
+		- Optimizations
+		- Radix tree
+			- Compress structure for path compression
+			- Merge orphan children
+			- Efficient pre-fix matching
+				- Why?
+					- Skip large segments of paths
+			- Space efficiency
+			- Chunks rather than characters for nodes
+		- Standard try + path compression with radix tree
+		- Try = tree
+	- Compressions/ optimizations
+		- Space efficiency
+			- Path compression
+				- Single child nodes merged
+				- Reduce nodes
+		- Time efficiency
+			- Red block / abl trees
+			- Tree balancing
+				- Optimizes time efficiency
+				- Olog(n)
+		- Heapification
+			- Heap property
+			- Parent node greater in max heap
+				- Priority queue opti
+		- Pruning
+			- Redundant nodes
+				- Common in decision trees or tries
+		- Compaction
+			- Mem/ space eff
+			- B-trees or B+-trees
+				- Minimize disk read/write
+		- Coalessing
+			- Similar/ identical values
+
