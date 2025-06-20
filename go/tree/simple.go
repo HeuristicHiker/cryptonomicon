@@ -18,43 +18,47 @@ type Transaction struct {
 	amount    float64
 }
 
-func CreateSimpleBinaryTree(transactions []Transaction, head *Node) (*Node, *Node) {
-	listOfNodes := []*Node{}
-
-	for t := 0; t < len(transactions)-1; t += 2 {
-		curTransaction := transactions[t]
-		nextTransaction := transactions[t+1]
-		leftTransaction := Transaction{
-			id:        curTransaction.id,
-			recipient: curTransaction.recipient,
-			payer:     curTransaction.payer,
-			amount:    curTransaction.amount,
-		}
-		rightTransaction := Transaction{
-			id:        nextTransaction.id,
-			recipient: nextTransaction.recipient,
-			payer:     nextTransaction.payer,
-			amount:    nextTransaction.amount,
-		}
-		leftNode := Node{Hash: hashTransaction(leftTransaction)}
-		rightNode := Node{Hash: hashTransaction(rightTransaction)}
-		internalNode := Node{
-			Hash:  hashPair(leftTransaction, rightTransaction),
-			Left:  &leftNode,
-			Right: &rightNode,
-		}
-		listOfNodes = append(listOfNodes, &internalNode)
+func CreateSimpleBinaryTree(transactions []Transaction) *Node {
+	if len(transactions) == 0 {
+		return nil
 	}
 
-	for _, n := range listOfNodes {
-		fmt.Printf("%x ======== %x\n", n.Left.Hash, n.Right.Hash)
-	}
-	fmt.Println("Good stuff we have len of ", len(listOfNodes))
-	if len(listOfNodes)%2 != 0 {
-		fmt.Println("odd len ", len(listOfNodes))
+	// Create leaf nodes for each transaction
+	nodes := make([]*Node, len(transactions))
+	for i, tx := range transactions {
+		nodes[i] = &Node{
+			Hash: hashTransaction(tx),
+		}
 	}
 
-	return nil, nil
+	// Build tree level by level until we have one root node
+	for len(nodes) > 1 {
+		var nextLevel []*Node
+
+		// Process pairs of nodes
+		for i := 0; i < len(nodes); i += 2 {
+			if i+1 < len(nodes) {
+				// Pair exists
+				leftHash := nodes[i].Hash
+				rightHash := nodes[i+1].Hash
+				combined := append(leftHash[:], rightHash[:]...)
+				parentHash := sha256.Sum256(combined)
+
+				parent := &Node{
+					Hash:  parentHash,
+					Left:  nodes[i],
+					Right: nodes[i+1],
+				}
+				nextLevel = append(nextLevel, parent)
+			} else {
+				// Odd node, promote to next level
+				nextLevel = append(nextLevel, nodes[i])
+			}
+		}
+		nodes = nextLevel
+	}
+
+	return nodes[0]
 }
 
 func hashTransaction(t Transaction) [32]byte {
