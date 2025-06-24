@@ -2,7 +2,6 @@ package main
 
 import (
 	"cryptonomicon/tree"
-	"fmt"
 )
 
 func main() {
@@ -14,7 +13,7 @@ func main() {
 
 	trie := tree.CreateSimpleBinaryTree(ledger)
 
-	fmt.Println(trie)
+	tree.PrintFromRoot(trie)
 
 }
 
