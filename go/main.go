@@ -2,18 +2,22 @@ package main
 
 import (
 	"cryptonomicon/tree"
+	"fmt"
 )
 
 func main() {
 	// ledger := merklev2.CreateSampleLedger()
 	// ledgerByteSlice := merklev2.LedgerToByteSlices(ledger)
 	// merklev2.NewMerkleTree(ledger.Transactions)
-	ledger := tree.CreateSampleLedger()
+	ledger := tree.CreateSampleLedger(11)
 	// head := tree.Node{}
 
-	trie := tree.CreateSimpleBinaryTree(ledger)
+	trie, err := tree.CreateMerkleTree(ledger)
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	tree.PrintFromRoot(trie)
+	tree.PrintLevels(trie)
 
 }
 
