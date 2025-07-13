@@ -2,6 +2,7 @@ package tree
 
 import (
 	"crypto/sha256"
+	"cryptonomicon/fancy"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -49,7 +50,7 @@ func CreateMerkleTree(transactions []Transaction) (*Node, error) {
 			}
 			nodes = append(nodes, duplicateNode)
 		}
-		fmt.Println()
+		// fmt.Println()
 		var nextLevel []*Node
 
 		for i := 0; i < len(nodes); i += 2 {
@@ -73,19 +74,19 @@ func CreateMerkleTree(transactions []Transaction) (*Node, error) {
 				TDetails:   &internalTDetail,
 				IsInternal: true,
 			}
-			fmt.Printf("[ %s & %s ]-", parent.Left.TDetails.Id, parent.Right.TDetails.Id)
+			// fmt.Printf("[ %s & %s ]-", parent.Left.TDetails.Id, parent.Right.TDetails.Id)
 
 			nextLevel = append(nextLevel, parent)
 		}
 		nodes = nextLevel
 	}
 
-	fmt.Printf("\n[ %s ]\n", nodes[0].TDetails.Id)
+	// fmt.Printf("\n[ %s ]\n", nodes[0].TDetails.Id)
 
 	return nodes[0], nil
 }
 
-func hashTransaction(t Transaction) [32]byte {
+func HashTransaction(t Transaction) [32]byte {
 	tString := fmt.Sprintf("%s:%s:%s:%.2f", t.Id, t.Payer, t.Recipient, t.Amount)
 	data := []byte(tString)
 	return sha256.Sum256(data)
@@ -103,7 +104,7 @@ func CreateLeaves(transactions []Transaction) []*Node {
 	nodes := make([]*Node, len(transactions))
 	for i, tx := range transactions {
 		nodes[i] = &Node{
-			Hash:       hashTransaction(tx),
+			Hash:       HashTransaction(tx),
 			TDetails:   &transactions[i],
 			IsInternal: false,
 		}
@@ -325,23 +326,198 @@ func ModifyLeafWithID(root *Node, targetID string, newID string) bool {
 	return ModifyLeafWithID(root.Left, targetID, newID) || ModifyLeafWithID(root.Right, targetID, newID)
 }
 
-func VerifyMerkleProof(rootNode *Node, transaction Transaction) bool {
-	ColorReset := "\033[0m"
-	ColorRed := "\033[31m"
-	// ColorGreen := "\033[32m"
+// ProofElement represents one step in a Merkle proof
+type ProofElement struct {
+	Hash   [32]byte
+	IsLeft bool // true if this hash should be on the left when combining
+}
 
-	// target log2(N) for N = 1000 compute is only 10 hashes
-	fmt.Println(transaction.Id)
+// === LIGHT CLIENT (Bob) DATA STRUCTURES ===
 
-	// Look at TX050's hash
+// LightClientKnowledge represents what Bob (light client) knows
+type LightClientKnowledge struct {
+	TrustedRootHash [32]byte    // From blockchain consensus
+	MyTransaction   Transaction // Transaction Bob wants to verify
+	BlockNumber     int         // Which block he thinks it's in
+}
 
-	// establish siblings
+// ProofRequest represents what Bob sends to Alice to request a proof
+type ProofRequest struct {
+	Transaction Transaction // "Please prove this transaction is in the block"
+	BlockNumber int         // "I think it's in block #12345"
+}
 
-	// Combine with sibling for parent hash
+// === FULL NODE (Alice) DATA STRUCTURES ===
 
-	// Combine up ton compute root hash
-	// message := "Testing"
-	fmt.Printf("%s❌ %s%s\n", ColorRed, transaction.Id, ColorReset)
+// FullNodeKnowledge represents what Alice (full node) knows
+type FullNodeKnowledge struct {
+	CompleteTree    *Node         // The entire Merkle tree
+	AllTransactions []Transaction // All transactions in the block
+	RootHash        [32]byte      // Root hash of the tree
+	BlockNumber     int           // Which block this represents
+}
 
-	return true
+// ProofResponse represents what Alice sends back to Bob
+type ProofResponse struct {
+	Found       bool           // Whether the transaction was found
+	Transaction Transaction    // Echo back the transaction
+	ProofPath   []ProofElement // The sibling hashes needed for verification
+	RootHash    [32]byte       // The root hash for verification
+	Message     string         // Human-readable status
+}
+
+// === NETWORK/BLOCKCHAIN DATA STRUCTURES ===
+
+// BlockHeader represents what the network consensus provides
+type BlockHeader struct {
+	BlockNumber int      // Block number
+	RootHash    [32]byte // Merkle root hash
+	Timestamp   int64    // When block was created
+	// ... other block metadata
+}
+
+// CreateProofRequest simulates what Bob (light client) would send to Alice (full node)
+func CreateProofRequest(transaction Transaction, blockNumber int) ProofRequest {
+	return ProofRequest{
+		Transaction: transaction,
+		BlockNumber: blockNumber,
+	}
+}
+
+// SimulateLightClient creates what Bob knows (minimal information)
+func SimulateLightClient(trustedRootHash [32]byte, myTransaction Transaction, blockNumber int) LightClientKnowledge {
+	return LightClientKnowledge{
+		TrustedRootHash: trustedRootHash,
+		MyTransaction:   myTransaction,
+		BlockNumber:     blockNumber,
+	}
+}
+
+// SimulateFullNode creates what Alice knows (complete information)
+func SimulateFullNode(transactions []Transaction, blockNumber int) (FullNodeKnowledge, error) {
+	tree, err := CreateMerkleTree(transactions)
+	if err != nil {
+		return FullNodeKnowledge{}, err
+	}
+
+	return FullNodeKnowledge{
+		CompleteTree:    tree,
+		AllTransactions: transactions,
+		RootHash:        tree.Hash,
+		BlockNumber:     blockNumber,
+	}, nil
+}
+
+// SimulateBlockchain creates what the network consensus provides
+func SimulateBlockchain(rootHash [32]byte, blockNumber int) BlockHeader {
+	return BlockHeader{
+		BlockNumber: blockNumber,
+		RootHash:    rootHash,
+		Timestamp:   1234567890, // Mock timestamp
+	}
+}
+
+// GenerateMerkleProof generates a proof for a given transaction in the tree
+func GenerateMerkleProof(root *Node, targetTransaction Transaction) ([]ProofElement, error) {
+	// Base case: if this is a leaf node
+	if !root.IsInternal {
+		if targetTransaction.Id == root.TDetails.Id {
+			fancy.PrintGreen("Found transaction: " + root.TDetails.Id)
+			// Found the target - return empty proof (no siblings needed at leaf level)
+			return []ProofElement{}, nil
+		} else {
+			fancy.PrintRed("Leaf isn't transaction: " + root.TDetails.Id)
+			// Not found - return nil to indicate not found (not an error)
+			return nil, nil
+		}
+	}
+
+	// Internal node: search left subtree first
+	if root.Left != nil {
+		fancy.PrintCyan("Checking left: " + root.Left.TDetails.Id)
+		leftProof, err := GenerateMerkleProof(root.Left, targetTransaction)
+		if err != nil {
+			return nil, err
+		}
+		if leftProof != nil {
+			// Found in left subtree - collect RIGHT sibling
+			// Adding sibling node hash so Bob can verify parent hash! ah, duh
+			sibling := ProofElement{
+				Hash:   root.Right.Hash,
+				IsLeft: false, // Right sibling goes on right when combining
+			}
+			return append(leftProof, sibling), nil
+		}
+	}
+
+	// Not found in left, search right subtree
+	if root.Right != nil {
+		fancy.PrintBlue("Checking right: " + root.Right.TDetails.Id)
+		rightProof, err := GenerateMerkleProof(root.Right, targetTransaction)
+		if err != nil {
+			return nil, err
+		}
+		if rightProof != nil {
+			// Found in right subtree - collect LEFT sibling
+			sibling := ProofElement{
+				Hash:   root.Left.Hash,
+				IsLeft: true, // Left sibling goes on left when combining
+			}
+			return append(rightProof, sibling), nil
+		}
+	}
+
+	// Not found in either subtree
+	return nil, nil
+}
+
+// ProcessProofRequest simulates Alice processing Bob's request
+func ProcessProofRequest(fullNode FullNodeKnowledge, request ProofRequest) ProofResponse {
+	// Alice tries to generate a proof for Bob's transaction
+	proof, err := GenerateMerkleProof(fullNode.CompleteTree, request.Transaction)
+
+	if err != nil {
+		return ProofResponse{
+			Found:       false,
+			Transaction: request.Transaction,
+			ProofPath:   nil,
+			RootHash:    fullNode.RootHash,
+			Message:     fmt.Sprintf("Transaction not found: %v", err),
+		}
+	}
+
+	return ProofResponse{
+		Found:       true,
+		Transaction: request.Transaction,
+		ProofPath:   proof,
+		RootHash:    fullNode.RootHash,
+		Message:     "Proof generated successfully",
+	}
+}
+
+func VerifyMerkleProof(proof []ProofElement, rootHash [32]byte, transaction Transaction) bool {
+	/*
+		Hash his TX003 transaction
+		Combine with Element 0 (right) → gets [TX003TX004] hash
+		Combine with Element 1 (left) → gets [TX001TX002TX003TX004] hash
+		Combine with Element 2 (right) → gets ROOT hash
+		Compare with trusted root hash from blockchain
+	*/
+	fmt.Println("Bob to prove: ")
+	combinedHash := [32]byte{}
+	for _, t := range proof {
+		fmt.Printf("Hash: %x, IsLeft: %v\n", t.Hash, t.IsLeft)
+		if t.IsLeft {
+			combinedHash = hashPair(combinedHash, t.Hash)
+		} else {
+			combinedHash = hashPair(t.Hash, combinedHash)
+		}
+	}
+	validHash := combinedHash == rootHash
+	if validHash {
+		fancy.PrintGreen("Success!")
+	} else {
+		fancy.PrintGreen("Success!")
+	}
+	return validHash
 }

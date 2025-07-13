@@ -116,3 +116,18 @@ func PrintFireGiant() {
 	fmt.Println(" 🔥🌱🌱🌱🌱🌱🌱🔥")
 	fmt.Println("   🔥🔥🔥🔥🔥🔥")
 }
+
+func PrintGreen(message string) {
+	fmt.Printf("\n %s %s %s \n", green, message, reset)
+}
+
+func PrintRed(message string) {
+	fmt.Printf("\n %s %s %s \n", red, message, reset)
+}
+
+func PrintBlue(message string) {
+	fmt.Printf("\n %s %s %s \n", blue, message, reset)
+}
+func PrintCyan(message string) {
+	fmt.Printf("\n %s %s %s \n", cyan, message, reset)
+}
